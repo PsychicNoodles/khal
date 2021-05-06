@@ -24,6 +24,7 @@ import datetime as dt
 import logging
 import os
 import textwrap
+import json
 from collections import OrderedDict, defaultdict
 from shutil import get_terminal_size
 
@@ -62,6 +63,14 @@ def format_day(day, format_string, locale, attributes=None):
         return format_string.format(**attributes) + colors["reset"]
     except (KeyError, IndexError):
         raise KeyError("cannot format day with: %s" % format_string)
+
+
+def human_formatter(format_string):
+    return lambda *args, **kwargs: format_string.format(*args, **kwargs)
+
+
+def json_formatter(fields):
+    return lambda **kwargs: json.dumps(dict(filter(lambda e: e[0] in fields, kwargs.items())), ensure_ascii=False)
 
 
 def calendar(collection, agenda_format=None, notstarted=False, once=False, daterange=None,
@@ -146,8 +155,8 @@ def start_end_from_daterange(daterange, locale,
 
 
 def get_events_between(
-        collection, locale, start, end, agenda_format=None, notstarted=False,
-        env=None, width=None, seen=None, original_start=None):
+        collection, locale, start, end, formatter, notstarted=False,
+        env=None, width=None, seen=None, original_start=None, colors=True):
     """returns a list of events scheduled between start and end. Start and end
     are strings or datetimes (of some kind).
 
@@ -195,11 +204,11 @@ def get_events_between(
             continue
 
         try:
-            event_string = event.format(agenda_format, relative_to=(start, end), env=env)
+            event_string = event.format(formatter, relative_to=(start, end), env=env, colors=colors)
         except KeyError as error:
             raise FatalError(error)
 
-        if width:
+        if width and colors:
             event_list += utils.color_wrap(event_string, width)
         else:
             event_list.append(event_string)
@@ -211,12 +220,19 @@ def get_events_between(
 
 def khal_list(collection, daterange=None, conf=None, agenda_format=None,
               day_format=None, once=False, notstarted=False, width=False,
-              env=None, datepoint=None):
+              env=None, datepoint=None, json=[]):
     assert daterange is not None or datepoint is not None
     """returns a list of all events in `daterange`"""
     # because empty strings are also Falsish
     if agenda_format is None:
         agenda_format = conf['view']['agenda_event_format']
+
+    if len(json) == 0:
+        formatter = human_formatter(agenda_format)
+        colors = True
+    else:
+        formatter = json_formatter(json)
+        colors = False
 
     if daterange is not None:
         if day_format is None:
@@ -260,13 +276,14 @@ def khal_list(collection, daterange=None, conf=None, agenda_format=None,
         else:
             day_end = dt.datetime.combine(start.date(), dt.time.max)
         current_events = get_events_between(
-            collection, locale=conf['locale'], agenda_format=agenda_format, start=start,
+            collection, locale=conf['locale'], formatter=formatter, start=start,
             end=day_end, notstarted=notstarted, original_start=original_start,
             env=env,
             seen=once,
             width=width,
+            colors=colors,
         )
-        if day_format and (conf['default']['show_all_days'] or current_events):
+        if day_format and (conf['default']['show_all_days'] or current_events) and len(json) == 0:
             if len(event_column) != 0 and conf['view']['blank_line_before_day']:
                 event_column.append('')
             event_column.append(format_day(start.date(), day_format, conf['locale']))
@@ -387,7 +404,7 @@ def new_from_args(collection, calendar_name, conf, dtstart=None, dtend=None,
     if conf['default']['print_new'] == 'event':
         if format is None:
             format = conf['view']['event_format']
-        echo(event.format(format, dt.datetime.now(), env=env))
+        echo(event.format(human_formatter(format), dt.datetime.now(), env=env))
     elif conf['default']['print_new'] == 'path':
         path = os.path.join(
             collection._calendars[event.calendar]['path'],
