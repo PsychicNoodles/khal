@@ -497,7 +497,7 @@ class Event(object):
             recurstr = ''
         return recurstr
 
-    def format(self, formatter, relative_to, env={}, colors=True):
+    def format(self, relative_to, env={}, colors=True):
         """
         :param colors: determines if colors codes should be printed or not
         :type colors: bool
@@ -656,7 +656,7 @@ class Event(object):
 
         attributes['status'] = self.status + ' ' if self.status else ''
         attributes['cancelled'] = 'CANCELLED ' if self.status == 'CANCELLED' else ''
-        return formatter(**dict(attributes)) + attributes["reset"]
+        return dict(attributes)
 
     def duplicate(self):
         """duplicate this event's PROTO event
@@ -692,7 +692,7 @@ class Event(object):
         for key in to_pop:
             self._vevents.pop(key)
 
-    @property
+    @ property
     def status(self):
         return self._vevents[self.ref].get('STATUS', '')
 
