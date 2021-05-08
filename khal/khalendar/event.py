@@ -497,7 +497,7 @@ class Event(object):
             recurstr = ''
         return recurstr
 
-    def format(self, relative_to, env={}, colors=True):
+    def attributes(self, relative_to, env={}, colors=True):
         """
         :param colors: determines if colors codes should be printed or not
         :type colors: bool

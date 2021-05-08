@@ -40,9 +40,9 @@ def test_raw_dt():
             normalize_component(_get_text('event_dt_simple_inkl_vtimezone'))
 
     event = Event.fromString(event_dt, **EVENT_KWARGS)
-    assert LIST_FORMATTER(event.format(
+    assert LIST_FORMATTER(event.attributes(
         dt.date(2014, 4, 9))) == '09:30-10:30 An Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 9))) == \
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == \
         '09.04.2014 09:30-10:30 An Event\x1b[0m'
     assert event.recurring is False
     assert event.duration == dt.timedelta(hours=1)
@@ -76,7 +76,7 @@ def test_no_end():
     event = Event.fromString(_get_text('event_dt_no_end'), **EVENT_KWARGS)
     # TODO make sure the event also gets converted to an all day event, as we
     # usually do
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 12))) == \
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 12))) == \
         '16.01.2016 08:00-17.01.2016 08:00 Test\x1b[0m'
 
 
@@ -127,8 +127,8 @@ def test_raw_d():
     event_d = _get_text('event_d')
     event = Event.fromString(event_d, **EVENT_KWARGS)
     assert event.raw.split('\r\n') == _get_text('cal_d').split('\n')
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == ' An Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 9))) == '09.04.2014 An Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == ' An Event\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '09.04.2014 An Event\x1b[0m'
 
 
 def test_update_sequence():
@@ -154,8 +154,8 @@ def test_transform_event():
     end = BERLIN.localize(dt.datetime(2014, 4, 9, 10, 30))
     event.update_start_end(start, end)
     assert isinstance(event, LocalizedEvent)
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == '09:30-10:30 An Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 9))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '09:30-10:30 An Event\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == \
         '09.04.2014 09:30-10:30 An Event\x1b[0m'
     analog_event = Event.fromString(_get_text('event_dt_simple'), **EVENT_KWARGS)
     assert normalize_component(event.raw) == normalize_component(analog_event.raw)
@@ -168,10 +168,10 @@ def test_update_event_d():
     event_d = _get_text('event_d')
     event = Event.fromString(event_d, **EVENT_KWARGS)
     event.update_start_end(dt.date(2014, 4, 20), dt.date(2014, 4, 22))
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 20))) == '↦ An Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 21))) == '↔ An Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 22))) == '⇥ An Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 20))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 20))) == '↦ An Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 21))) == '↔ An Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 22))) == '⇥ An Event\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 20))) == \
         '20.04.2014-22.04.2014 An Event\x1b[0m'
     assert 'DTSTART;VALUE=DATE:20140420' in event.raw.split('\r\n')
     assert 'DTEND;VALUE=DATE:20140423' in event.raw.split('\r\n')
@@ -203,8 +203,8 @@ def test_dt_two_tz():
     # local (Berlin) time!
     assert event.start_local == BERLIN.localize(dt.datetime(2014, 4, 9, 9, 30))
     assert event.end_local == BERLIN.localize(dt.datetime(2014, 4, 9, 16, 30))
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == '09:30-16:30 An Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 9))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '09:30-16:30 An Event\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == \
         '09.04.2014 09:30-16:30 An Event\x1b[0m'
 
 
@@ -214,10 +214,11 @@ def test_event_dt_duration():
     event = Event.fromString(event_dt_duration, **EVENT_KWARGS)
     assert event.start == BERLIN.localize(dt.datetime(2014, 4, 9, 9, 30))
     assert event.end == BERLIN.localize(dt.datetime(2014, 4, 9, 10, 30))
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == '09:30-10:30 An Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 9))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '09:30-10:30 An Event\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == \
         '09.04.2014 09:30-10:30 An Event\x1b[0m'
-    assert human_formatter('{duration}')(event.format(relative_to=dt.date.today())) == '1h\x1b[0m'
+    assert human_formatter('{duration}')(event.attributes(
+        relative_to=dt.date.today())) == '1h\x1b[0m'
 
 
 def test_event_dt_floating():
@@ -225,9 +226,10 @@ def test_event_dt_floating():
     event_str = _get_text('event_dt_floating')
     event = Event.fromString(event_str, **EVENT_KWARGS)
     assert isinstance(event, FloatingEvent)
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == '09:30-10:30 An Event\x1b[0m'
-    assert human_formatter('{duration}')(event.format(relative_to=dt.date.today())) == '1h\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 9))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '09:30-10:30 An Event\x1b[0m'
+    assert human_formatter('{duration}')(event.attributes(
+        relative_to=dt.date.today())) == '1h\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == \
         '09.04.2014 09:30-10:30 An Event\x1b[0m'
     assert event.start == dt.datetime(2014, 4, 9, 9, 30)
     assert event.end == dt.datetime(2014, 4, 9, 10, 30)
@@ -249,7 +251,8 @@ def test_event_dt_tz_missing():
     assert event.end == BERLIN.localize(dt.datetime(2014, 4, 9, 10, 30))
     assert event.start_local == BERLIN.localize(dt.datetime(2014, 4, 9, 9, 30))
     assert event.end_local == BERLIN.localize(dt.datetime(2014, 4, 9, 10, 30))
-    assert human_formatter('{duration}')(event.format(relative_to=dt.date.today())) == '1h\x1b[0m'
+    assert human_formatter('{duration}')(event.attributes(
+        relative_to=dt.date.today())) == '1h\x1b[0m'
 
     event = Event.fromString(event_str, calendar='foobar', locale=LOCALE_MIXED)
     assert event.start == BERLIN.localize(dt.datetime(2014, 4, 9, 9, 30))
@@ -263,10 +266,10 @@ def test_event_dt_rr():
     event = Event.fromString(event_dt_rr, **EVENT_KWARGS)
     assert event.recurring is True
 
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == '09:30-10:30 An Event ⟳\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 9))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '09:30-10:30 An Event ⟳\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == \
         '09.04.2014 09:30-10:30 An Event ⟳\x1b[0m'
-    assert human_formatter('{repeat-pattern}')(event.format(dt.date(2014, 4, 9))
+    assert human_formatter('{repeat-pattern}')(event.attributes(dt.date(2014, 4, 9))
                                                ) == 'FREQ=DAILY;COUNT=10\x1b[0m'
 
 
@@ -274,18 +277,18 @@ def test_event_d_rr():
     event_d_rr = _get_text('event_d_rr')
     event = Event.fromString(event_d_rr, **EVENT_KWARGS)
     assert event.recurring is True
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == ' Another Event ⟳\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 9))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == ' Another Event ⟳\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == \
         '09.04.2014 Another Event ⟳\x1b[0m'
-    assert human_formatter('{repeat-pattern}')(event.format(dt.date(2014, 4, 9))
+    assert human_formatter('{repeat-pattern}')(event.attributes(dt.date(2014, 4, 9))
                                                ) == 'FREQ=DAILY;COUNT=10\x1b[0m'
 
     start = dt.date(2014, 4, 10)
     end = dt.date(2014, 4, 11)
     event = Event.fromString(event_d_rr, start=start, end=end, **EVENT_KWARGS)
     assert event.recurring is True
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 10))) == ' Another Event ⟳\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 10))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 10))) == ' Another Event ⟳\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 10))) == \
         '10.04.2014 Another Event ⟳\x1b[0m'
 
 
@@ -298,13 +301,13 @@ def test_event_rd():
 def test_event_d_long():
     event_d_long = _get_text('event_d_long')
     event = Event.fromString(event_d_long, **EVENT_KWARGS)
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == '↦ Another Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 10))) == '↔ Another Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 11))) == '⇥ Another Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 12))) == ' Another Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 16))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '↦ Another Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 10))) == '↔ Another Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 11))) == '⇥ Another Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 12))) == ' Another Event\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 16))) == \
         '09.04.2014-11.04.2014 Another Event\x1b[0m'
-    assert human_formatter('{duration}')(event.format(
+    assert human_formatter('{duration}')(event.attributes(
         relative_to=dt.date(2014, 4, 11))) == '3d\x1b[0m'
 
 
@@ -312,10 +315,10 @@ def test_event_d_two_days():
     event_d_long = _get_text('event_d_long')
     event = Event.fromString(event_d_long, **EVENT_KWARGS)
     event.update_start_end(dt.date(2014, 4, 9), dt.date(2014, 4, 10))
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == '↦ Another Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 10))) == '⇥ Another Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 12))) == ' Another Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 10))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '↦ Another Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 10))) == '⇥ Another Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 12))) == ' Another Event\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 10))) == \
         '09.04.2014-10.04.2014 Another Event\x1b[0m'
 
 
@@ -323,10 +326,10 @@ def test_event_dt_long():
     event_dt_long = _get_text('event_dt_long')
     event = Event.fromString(event_dt_long, **EVENT_KWARGS)
 
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 9))) == '09:30→ An Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 10))) == '↔ An Event\x1b[0m'
-    assert LIST_FORMATTER(event.format(dt.date(2014, 4, 12))) == '→10:30 An Event\x1b[0m'
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 10))) == \
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 9))) == '09:30→ An Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 10))) == '↔ An Event\x1b[0m'
+    assert LIST_FORMATTER(event.attributes(dt.date(2014, 4, 12))) == '→10:30 An Event\x1b[0m'
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 10))) == \
         '09.04.2014 09:30-12.04.2014 10:30 An Event\x1b[0m'
 
 
@@ -342,7 +345,7 @@ def test_event_no_dst(pytz_version):
         )
 
     assert normalize_component(event.raw) == normalize_component(cal_no_dst)
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 4, 10))) == \
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 4, 10))) == \
         '09.04.2014 09:30-10:30 An Event\x1b[0m'
 
 
@@ -389,10 +392,10 @@ def test_multi_uid():
 def test_cancelled_instance():
     orig_event_str = _get_text('event_rrule_recuid_cancelled')
     event = Event.fromString(orig_event_str, ref='1405314000', **EVENT_KWARGS)
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 7, 14))) == \
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 7, 14))) == \
         'CANCELLED 14.07.2014 07:00-12:00 Arbeit ⟳\x1b[0m'
     event = Event.fromString(orig_event_str, ref='PROTO', **EVENT_KWARGS)
-    assert SEARCH_FORMATTER(event.format(dt.date(2014, 7, 14))) == \
+    assert SEARCH_FORMATTER(event.attributes(dt.date(2014, 7, 14))) == \
         '30.06.2014 07:00-12:00 Arbeit ⟳\x1b[0m'
 
 
@@ -461,7 +464,7 @@ def test_format_24():
     event = Event.fromString(event_dt, **EVENT_KWARGS)
     event.update_start_end(start, end)
     format_ = '{start-end-time-style} {title}{repeat-symbol}'
-    assert human_formatter(format_)(event.format(dt.date(2014, 4, 9))
+    assert human_formatter(format_)(event.attributes(dt.date(2014, 4, 9))
                                     ) == '19:30-24:00 An Event\x1b[0m'
 
 
@@ -470,16 +473,16 @@ def test_invalid_format_string():
     event = Event.fromString(event_dt, **EVENT_KWARGS)
     format_ = '{start-end-time-style} {title}{foo}'
     with pytest.raises(KeyError):
-        human_formatter(format_)(event.format(dt.date(2014, 4, 9)))
+        human_formatter(format_)(event.attributes(dt.date(2014, 4, 9)))
 
 
 def test_format_colors():
     event = Event.fromString(_get_text('event_dt_simple'), **EVENT_KWARGS)
     format_ = '{red}{title}{reset}'
-    assert human_formatter(format_)(event.format(dt.date(2014, 4, 9))
+    assert human_formatter(format_)(event.attributes(dt.date(2014, 4, 9))
                                     ) == '\x1b[31mAn Event\x1b[0m\x1b[0m'
     assert human_formatter(format_, colors=False)(
-        event.format(dt.date(2014, 4, 9), colors=False)) == 'An Event'
+        event.attributes(dt.date(2014, 4, 9), colors=False)) == 'An Event'
 
 
 def test_event_alarm():
