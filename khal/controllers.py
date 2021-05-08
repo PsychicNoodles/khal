@@ -24,7 +24,6 @@ import datetime as dt
 import logging
 import os
 import textwrap
-import json
 from collections import OrderedDict, defaultdict
 from shutil import get_terminal_size
 
@@ -41,6 +40,7 @@ from .icalendar import (cal_from_ics, new_event as new_vevent, split_ics,
                         sort_key as sort_vevent_key)
 from .khalendar.vdir import Item
 from .terminal import merge_columns
+from .utils import (human_formatter, json_formatter)
 
 logger = logging.getLogger('khal')
 
@@ -63,42 +63,6 @@ def format_day(day, format_string, locale, attributes=None):
         return format_string.format(**attributes) + colors["reset"]
     except (KeyError, IndexError):
         raise KeyError("cannot format day with: %s" % format_string)
-
-
-def human_formatter(format_string, width=None, colors=True):
-    def fmt(rows):
-        single = type(rows) == dict
-        if single:
-            rows = [rows]
-        results = []
-        for row in rows:
-            s = format_string.format(**row)
-            if colors:
-                s += style('', reset=True)
-            if width:
-                results += utils.color_wrap(s, width)
-            else:
-                results.append(s)
-        if single:
-            return results[0]
-        else:
-            return results
-    return fmt
-
-
-def json_formatter(fields):
-    def fmt(rows):
-        single = type(rows) == dict
-        if single:
-            rows = [rows]
-        results = [json.dumps(
-            [dict(filter(lambda e: e[0] in fields, row.items())) for row in rows],
-            ensure_ascii=False)]
-        if single:
-            return results[0]
-        else:
-            return results
-    return fmt
 
 
 def calendar(collection, agenda_format=None, notstarted=False, once=False, daterange=None,
