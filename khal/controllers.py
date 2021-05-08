@@ -156,8 +156,7 @@ def get_events_between(
     :type collection: khalendar.CalendarCollection
     :param start: the start datetime
     :param end: the end datetime
-    :param agenda_format: a format string that can be used in python string formatting
-    :type  agenda_format: str
+    :param formatter: the formatter (see :class:`.utils.human_formatter`)
     :param env: a collection of "static" values like calendar names and color
     :type env: dict
     :param nostarted: True if each event should start after start (instead of

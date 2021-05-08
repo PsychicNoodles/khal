@@ -192,6 +192,7 @@ def get_wrapped_text(widget):
 
 
 def human_formatter(format_string, width=None, colors=True):
+    """Create a formatter that formats events to be human readable."""
     def fmt(rows):
         single = type(rows) == dict
         if single:
@@ -213,6 +214,7 @@ def human_formatter(format_string, width=None, colors=True):
 
 
 def json_formatter(fields):
+    """Create a formatter that formats events in JSON."""
     def fmt(rows):
         single = type(rows) == dict
         if single:
