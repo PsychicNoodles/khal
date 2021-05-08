@@ -30,7 +30,7 @@ from shutil import get_terminal_size
 import pytz
 from click import confirm, echo, prompt, style
 from khal import (__productname__, __version__, calendar_display,
-                  parse_datetime, utils)
+                  parse_datetime)
 from khal.exceptions import FatalError, DateTimeParseError
 from khal.khalendar.event import Event
 from khal.khalendar.exceptions import DuplicateUid, ReadOnlyCalendarError
