@@ -32,7 +32,6 @@ from click import style
 
 from ..exceptions import FatalError
 from ..icalendar import cal_from_ics, delete_instance, invalid_timezone
-from ..terminal import get_color
 from ..utils import generate_random_uid, is_aware, to_naive_utc, to_unix_time
 from ..parse_datetime import timedelta2str
 
@@ -634,7 +633,7 @@ class Event(object):
 
         if "calendars" in env and self.calendar in env["calendars"]:
             cal = env["calendars"][self.calendar]
-            attributes["calendar-color"] = get_color(cal.get('color', ''))
+            attributes["calendar-color"] = cal.get('color', '')
             attributes["calendar"] = cal.get("displayname", self.calendar)
         else:
             attributes["calendar-color"] = attributes["calendar"] = ''
