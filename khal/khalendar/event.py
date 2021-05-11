@@ -691,7 +691,7 @@ class Event(object):
         for key in to_pop:
             self._vevents.pop(key)
 
-    @ property
+    @property
     def status(self):
         return self._vevents[self.ref].get('STATUS', '')
 
