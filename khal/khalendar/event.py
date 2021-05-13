@@ -336,7 +336,7 @@ class Event(object):
     @property
     def attendees(self):
         if 'ATTENDEE' not in self._vevents[self.ref]:
-            return ''
+            return []
         return [{'name': attendee.params.get('CN', ''),
                  'status': attendee.params.get('PARTSTAT', ''),
                  'address': str(attendee)}
