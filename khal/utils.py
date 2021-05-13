@@ -226,8 +226,9 @@ CONTENT_ATTRIBUTES = ['start', 'start-long', 'start-date', 'start-date-long',
                       'end-date-full', 'end-date-long-full', 'end-time-full', 'duration-full',
                       'start-style', 'end-style', 'to-style', 'start-end-time-style',
                       'end-necessary', 'end-necessary-long', 'repeat-symbol', 'repeat-pattern',
-                      'title', 'organizer', 'attendees', 'description', 'location', 'all-day', 'categories',
-                      'uid', 'url', 'calendar', 'calendar-color', 'status', 'cancelled']
+                      'title', 'organizer', 'attendees', 'description', 'location', 'all-day',
+                      'categories', 'uid', 'url', 'calendar', 'calendar-color', 'status',
+                      'cancelled']
 
 
 def json_formatter(fields):
