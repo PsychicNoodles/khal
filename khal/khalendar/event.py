@@ -333,6 +333,12 @@ class Event(object):
         else:
             self._vevents[self.ref].pop('URL')
 
+    @property
+    def attendees(self):
+        if 'ATTENDEE' not in self._vevents[self.ref]:
+            return ''
+        return [{'name': attendee.params.get('CN', ''), 'status': attendee.params.get('PARTSTAT', ''), 'address': str(attendee)} for attendee in self._vevents[self.ref]['ATTENDEE']]
+
     @staticmethod
     def _create_calendar():
         """
@@ -621,6 +627,7 @@ class Event(object):
         attributes["repeat-pattern"] = self.recurpattern
         attributes["title"] = self.summary
         attributes["organizer"] = self.organizer.strip()
+        attributes['attendees'] = self.attendees
         attributes["description"] = self.description.strip()
         attributes["description-separator"] = ""
         if attributes["description"]:
