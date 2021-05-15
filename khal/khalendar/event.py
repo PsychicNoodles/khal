@@ -337,10 +337,16 @@ class Event(object):
     def attendees(self):
         if 'ATTENDEE' not in self._vevents[self.ref]:
             return []
-        return [{'name': attendee.params.get('CN', ''),
-                 'status': attendee.params.get('PARTSTAT', ''),
-                 'address': str(attendee)}
-                for attendee in self._vevents[self.ref]['ATTENDEE']]
+        attendees = self._vevents[self.ref]['ATTENDEE']
+        if type(attendees) is list:
+            return [{'name': attendee.params.get('CN', ''),
+                    'status': attendee.params.get('PARTSTAT', ''),
+                     'address': str(attendee)}
+                    for attendee in self._vevents[self.ref]['ATTENDEE']]
+        else:
+            return [{'name': attendees.params.get('CN', ''),
+                    'status': attendees.params.get('PARTSTAT', ''),
+                     'address': str(attendees)}]
 
     @staticmethod
     def _create_calendar():
